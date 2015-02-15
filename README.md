@@ -6,15 +6,13 @@ Datadump prints images, plots, values and instances of structs directly to the b
 [example output](http://rawgit.com/CorgiMan/datadump/master/example.html)
 
 ## Usage
-The example above is a result of the following code
-
-You need to open a port to sent your data to. 
+The example above is a result of the following code. First we need to open a port to sent your data to. 
 ```
 datadump.Open(":8080")
 defer datadump.Close()
 ```
 
-Sent your data to the `datadump.C` channel
+Next we can sent stuff to the `datadump.C` channel
 - print a string
 `datadump.C <- "Hello World!"`
  
