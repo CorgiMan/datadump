@@ -5,11 +5,47 @@ import (
 	"image/color"
 	"math"
 	"math/cmplx"
-	"net/http"
 	"os"
 
 	"github.com/CorgiMan/datadump"
+	"github.com/CorgiMan/jsonquery"
 )
+
+func main() {
+	datadump.Open(":8080")
+	defer datadump.Close()
+
+	// print a string
+	datadump.C <- "Hello World!"
+
+	// print a type (a file for example)
+	f, _ := os.Open("main.go")
+	datadump.C <- f
+
+	// draw an image
+	datadump.C <- Mandelbrot{Width: 300, Height: 300}
+
+	// plot a sine function
+	ys := []float64{}
+	xs := []float64{}
+	for x := -30.0; x < 30.0; x += 0.1 {
+		xs = append(xs, x)
+		ys = append(ys, math.Sin(x))
+	}
+	datadump.C <- map[string]interface{}{"connected": 0, "x": xs, "y": ys}
+
+	// plot coordinates extracted from a large json string
+	plot := jsonquery.
+		FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").
+		Select(`{"pixel_loc_x":"", "pixel_loc_y":""}`).
+		Flatten().Rename("pixel_loc_x", "x", "pixel_loc_y", "y")
+	datadump.C <- plot
+
+	// Plot the json associated to the data
+	jsondata := jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A")
+	datadump.C <- jsondata
+
+}
 
 type Mandelbrot struct {
 	Width, Height int
@@ -34,26 +70,4 @@ func (img Mandelbrot) At(x, y int) color.Color {
 
 func (img Mandelbrot) ColorModel() color.Model {
 	return color.GrayModel
-}
-
-func main() {
-	datadump.Open()
-	defer datadump.Close()
-	datadump.C <- Mandelbrot{100, 100}
-
-	ys := []float64{}
-	xs := []float64{}
-	for i := -300; i < 300; i++ {
-		xs = append(xs, float64(i)*0.1)
-		ys = append(ys, math.Sin(float64(xs[len(xs)-1]))*6)
-	}
-	datadump.C <- map[string]interface{}{"connected": 0, "x": xs, "y": ys}
-	res, err := http.Get("http://www.asterank.com/api/skymorph/search?target=J99TS7A")
-	jsonquery
-	datadump.C <- res
-	datadump.C <- err
-	r, err := os.Open("main.go")
-	datadump.C <- r
-	datadump.C <- err
-
 }

@@ -21,6 +21,11 @@ func OpenInBrowser(uri string) error {
 		return fmt.Errorf("don't know how to open things on %s platform", runtime.GOOS)
 	}
 
-	cmd := exec.Command(run, uri)
-	return cmd.Start()
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("cmd", "/C", run, "", uri)
+		return cmd.Start()
+	} else {
+		cmd := exec.Command(run, uri)
+		return cmd.Start()
+	}
 }

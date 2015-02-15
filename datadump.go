@@ -14,12 +14,12 @@ import (
 
 var C chan interface{}
 
-func Open() chan interface{} {
+func Open(port string) chan interface{} {
 	C = make(chan interface{})
 	http.HandleFunc("/", root)
 	http.HandleFunc("/ajax", ajaxdump(C))
-	go func() { http.ListenAndServe(":8000", nil) }()
-	OpenInBrowser("http://localhost:8000")
+	go func() { http.ListenAndServe(port, nil) }()
+	OpenInBrowser("http://localhost" + port)
 	return C
 }
 
@@ -46,7 +46,7 @@ func writeInterface(w http.ResponseWriter, v interface{}) {
 	case image.Image:
 		err = writeHtmlImg(w, x)
 	case string:
-		_, err = fmt.Fprintf(w, "%s", x)
+		_, err = fmt.Fprintf(w, "<pre>%s</pre>", x)
 	default:
 		// try to marshal and unmarshal and then find if interface contains
 		// svg or geo elements
@@ -79,16 +79,27 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 	if m, ok = v.(map[string]interface{}); !ok {
 		return
 	}
-	var ys []interface{}
+	var ys []float64
 	if ys, ok = ValueArray(m, "y"); !ok {
 		return
 	}
 
-	var xs []interface{}
+	var xs []float64
 	if xs, ok = ValueArray(m, "x"); !ok || len(ys) != len(xs) {
 		for i := range ys {
 			xs = append(xs, float64(i))
 		}
+	}
+
+	minx, maxx := minMax(xs)
+	miny, maxy := minMax(ys)
+	minx -= 0.05 * (maxx - minx)
+	maxx += 0.05 * (maxx - minx)
+	miny -= 0.05 * (maxy - miny)
+	maxy += 0.05 * (maxy - miny)
+	for i := range xs {
+		xs[i] = 600 * (xs[i] - minx) / (maxx - minx)
+		ys[i] = 350 - 350*(ys[i]-miny)/(maxy-miny)
 	}
 
 	var r interface{}
@@ -104,7 +115,7 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 		//connected means polyline
 		fmt.Fprintf(w, `<polyline points="`)
 		for i := range ys {
-			fmt.Fprintf(w, "%v,%v ", 300+8*xs[i].(float64), 175-8*ys[i].(float64))
+			fmt.Fprintf(w, "%v,%v ", xs[i], ys[i])
 		}
 		fmt.Fprintf(w, `"style="fill:none;stroke:black;stroke-width:3" />`)
 		return true, nil
@@ -113,7 +124,7 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 		//closed means polygon
 		fmt.Fprintf(w, `<polygon points="`)
 		for i := range ys {
-			fmt.Fprintf(w, "%v,%v ", 300+8*xs[i].(float64), 175-8*ys[i].(float64))
+			fmt.Fprintf(w, "%v,%v ", xs[i], ys[i])
 		}
 		fmt.Fprintf(w, `"style="fill:none;stroke:black;stroke-width:3" />`)
 		return true, nil
@@ -123,8 +134,7 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 		for i := 0; i+1 < len(ys); i += 2 {
 			fmt.Fprintf(w, `<line x1="%v" y1="%v" x2="%v" y2="%v" 
 				style="stroke:rgb(255,0,0);stroke-width:2" />`,
-				300+8*xs[i].(float64), 175-8*ys[i].(float64),
-				300+8*xs[i+1].(float64), 175-8*ys[i+1].(float64))
+				xs[i], ys[i], xs[i+1], ys[i+1])
 		}
 
 		return true, nil
@@ -133,7 +143,7 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 	// write circles
 	for i := range ys {
 		fmt.Fprintf(w, `<circle cx="%v" cy="%v" r="%v" fill="red" />`,
-			300+8*xs[i].(float64), 175-8*ys[i].(float64), r)
+			xs[i], ys[i], r)
 	}
 
 	// color
@@ -142,19 +152,25 @@ func writeSvg(w http.ResponseWriter, v interface{}) (ok bool, err error) {
 	return true, nil
 }
 
-func ValueArray(m map[string]interface{}, s string) (xs []interface{}, ok bool) {
+func ValueArray(m map[string]interface{}, s string) ([]float64, bool) {
 	var a interface{}
+	var ok bool
+	var xs []interface{}
 	if a, ok = m[s]; !ok {
-		return
+		return nil, false
 	}
 
 	if xs, ok = a.([]interface{}); !ok {
-		return
+		return nil, false
 	}
 
 	//check if xs contains only values
 
-	return xs, true
+	ys := []float64{}
+	for i := range xs {
+		ys = append(ys, xs[i].(float64))
+	}
+	return ys, true
 }
 
 func writeGeoMap(w http.ResponseWriter, v interface{}) (bool, error) {
@@ -177,6 +193,22 @@ func writeHtmlImg(w http.ResponseWriter, img image.Image) error {
 		return err
 	}
 	return nil
+}
+
+func minMax(a []float64) (float64, float64) {
+	if len(a) == 0 {
+		return 0, 0
+	}
+	min, max := a[0], a[0]
+	for _, v := range a {
+		if v < min {
+			min = v
+		}
+		if v > max {
+			max = v
+		}
+	}
+	return min, max
 }
 
 var rootTemplate = template.Must(template.New("root").Parse(`
