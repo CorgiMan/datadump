@@ -22,9 +22,11 @@ You need the `json2` package. The `jsonquery` is optional but synergizes well wi
 ```go get github.com/CorgiMan/datadump```
 
 ```go get github.com/CorgiMan/jsonquery```
-jsonquery is used in the last example. It selects all the objects that match a given json string.
+
+`jsonquery` is used in the last example. It selects all the objects that match a given json string.
 
 ```go get github.com/CorgiMan/json2```
+
 `json2` is exactly the same as encoding/json but it also marshals unexported fields. This is used to pretty print any type as a json string.
 
-run with `go run main/main.go`
+run example with `go run main/main.go`
