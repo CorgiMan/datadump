@@ -16,7 +16,7 @@ Next we can sent stuff to the `datadump.C` channel
 ### print a string
 ```datadump.C <- "Hello World!"```
  
-### print the contents of a file
+### print the contents of a file struct
 ``` 
 f, _ := os.Open("main.go")
 datadump.C <- f
