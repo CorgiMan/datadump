@@ -29,17 +29,19 @@ datadump.C <- f
 datadump.C <- Mandelbrot{Width: 300, Height: 300}
 ```
 
-### Plot a sin function (xs and ys are of type []float64 and are defined in main/main.go)
+### Plot a sin function
 ```
+// xs and ys are of type []float64 and are defined in main/main.go
 datadump.C <- map[string]interface{}{"connected": 0, "x": xs, "y": ys}
 ```
 
-### Plot some datapoints found in a json file from the web. The json is transformed to a graphable form with jsonquery.
+### Plot datapoints from data from the web
 ```
-datadump.C <- FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").
-              Select(`{"pixel_loc_x":"", "pixel_loc_y":""}`).
-              Flatten().
-              Rename("pixel_loc_x", "x", "pixel_loc_y", "y")
+// open a json file from the web and transform it using jsonquery
+datadump.C <- jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").
+                        Select(`{"pixel_loc_x":"", "pixel_loc_y":""}`).
+                        Flatten().
+                        Rename("pixel_loc_x", "x", "pixel_loc_y", "y")
 ```
 
 ## Features
