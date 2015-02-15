@@ -3,7 +3,7 @@
 Datadump prints images, plots, values and instances of structs directly to the browser. Datadump allows for quick prototyping of your application and a more advanced way to debug than the console.
 
 ## Example
-[example output](example.html)
+[example output](http://rawgit.com/CorgiMan/datadump/master/example.html)
 
 ## Features
 - draw images
