@@ -2,6 +2,19 @@
 
 Datadump prints images, plots, values and instances of structs directly to the browser. Datadump allows for quick prototyping of your application and a more advanced way to debug than the console.
 
+## Features
+- draw images
+- graph circles, rectangles, points, polygons
+- draw an instance of a struct as a json string
+
+## Future features
+- plot geo coordinates on a map
+- audio support
+- plots with axis
+- 3d plots
+- graphs and tree visualization
+- support for cyclic types
+
 ## Example
 This [example output](http://rawgit.com/CorgiMan/datadump/master/example.html) is a result of running the code in the usage section.
 
@@ -46,19 +59,6 @@ datadump.C <- jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?tar
                         Flatten().
                         Rename("pixel_loc_x", "x", "pixel_loc_y", "y")
 ```
-
-## Features
-- draw images
-- graph circles, rectangles, points, polygons
-- draw an instance of a struct as a json string
-
-## Future features
-- plot geo coordinates on a map
-- audio support
-- plots with axis
-- 3d plots
-- graphs and tree visualization
-- support for cyclic types
 
 ## Installation
 You need the `json2` package. The `jsonquery` is optional but synergizes well with this application, as shown in the example `main/main.go`.
