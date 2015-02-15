@@ -1,6 +1,6 @@
 # Datadump
 
-Datadump is a pretty printing tool. It prints images, plots, values and instances to the browser. This allows for quick prototyping of your application and a more advanced way to debug than the console.
+Datadump is a pretty printing tool. It prints images, plots, values and instances of structs to the browser. Datadump allows for quick prototyping of your application and a more advanced way to debug than the console.
 
 ## Features
 - print data to browser
