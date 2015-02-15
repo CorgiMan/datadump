@@ -61,7 +61,7 @@ datadump.C <- jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?tar
 ```
 
 ## Installation
-You need the `json2` package. The `jsonquery` is optional but synergizes well with this application, as shown in the example `main/main.go`.
+You need the `json2` package. The `jsonquery` is optional but synergizes well with this application, as shown in the example.
 
 ```
 go get github.com/CorgiMan/datadump
@@ -69,8 +69,8 @@ go get github.com/CorgiMan/jsonquery
 go get github.com/CorgiMan/json2
 ```
 
-`jsonquery` is used in the last example. It selects all the objects that match a given json string.
-
 `json2` is exactly the same as encoding/json but it also marshals unexported fields. This is used to pretty print any type as a json string.
 
-run example with `cd main` and then `go run main.go`
+`jsonquery` is used in the last example. It selects all the objects that match a given json string.
+
+run the example with `cd main` and then `go run main.go`
