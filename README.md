@@ -3,16 +3,18 @@
 Datadump prints images, plots, values and instances of structs directly to the browser. Datadump allows for quick prototyping of your application and a more advanced way to debug than the console.
 
 ## Example
-[example output](http://rawgit.com/CorgiMan/datadump/master/example.html)
+This [example output](http://rawgit.com/CorgiMan/datadump/master/example.html) is a result of running the code in the usage section.
 
 ## Usage
-The example above is a result of the following code. First we need to open a port to sent your data to. 
+The api consists of `datadump.C` of the type `chan interface{}` and 2 functions `datadump.Open(port string)` and `datadump.Close()`.
+
+First we need to open a port to sent your data to. 
 ```
 datadump.Open(":8080")
 defer datadump.Close()
 ```
 
-Next we can sent stuff to the `datadump.C` channel
+Next we can sent stuff to the `datadump.C` channel to sent stuff to the browser.
 ### print a string
 ```datadump.C <- "Hello World!"```
  
