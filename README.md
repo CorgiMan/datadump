@@ -13,26 +13,26 @@ defer datadump.Close()
 ```
 
 Next we can sent stuff to the `datadump.C` channel
-- print a string
-`datadump.C <- "Hello World!"`
+### print a string
+```datadump.C <- "Hello World!"```
  
-- print the contents of a file
+### print the contents of a file
 ``` 
 f, _ := os.Open("main.go")
 datadump.C <- f
 ```
 
-- show an Image (the mandelbrot image is defined in main/main.go)
+### show an Image (the mandelbrot image is defined in main/main.go)
 ```
 datadump.C <- Mandelbrot{Width: 300, Height: 300}
 ```
 
-- Plot a sin function (xs and ys are of type []float64 and are defined in main/main.go)
+### Plot a sin function (xs and ys are of type []float64 and are defined in main/main.go)
 ```
 datadump.C <- map[string]interface{}{"connected": 0, "x": xs, "y": ys}
 ```
 
-- Plot some datapoints found in a json file from the web. The json is transformed to a graphable form with jsonquery.
+### Plot some datapoints found in a json file from the web. The json is transformed to a graphable form with jsonquery.
 ```
 datadump.C <- FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").
               Select(`{"pixel_loc_x":"", "pixel_loc_y":""}`).
