@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/png"
 	"log"
+	"math/rand"
 	"net/http"
 
 	"github.com/CorgiMan/json2"
@@ -173,8 +174,66 @@ func ValueArray(m map[string]interface{}, s string) ([]float64, bool) {
 	return ys, true
 }
 
-func writeGeoMap(w http.ResponseWriter, v interface{}) (bool, error) {
-	return false, nil
+func writeGeoMap(w http.ResponseWriter, v interface{}) (ok bool, err error) {
+	var m map[string]interface{}
+	if m, ok = v.(map[string]interface{}); !ok {
+		return false, nil
+	}
+
+	coords, hascoords := m["coordinates"]
+	lats, haslat := ValueArray(m, "lat")
+	lngs, haslng := ValueArray(m, "lng")
+	if !hascoords && !(haslat && haslng) {
+		return false, nil
+	}
+	if hascoords {
+		for _, c := range coords.([]interface{}) {
+			lngs = append(lngs, c.([]interface{})[0].(float64))
+			lats = append(lats, c.([]interface{})[1].(float64))
+		}
+	}
+
+	x := rand.Intn(100000)
+
+	fmt.Fprintf(w,
+		`
+		<script>
+		  var mapProp = {
+		    center: new google.maps.LatLng(51.508742,-0.120850),
+		    zoom:9,
+		    mapTypeId: google.maps.MapTypeId.ROADMAP
+		  };
+		  var map = new google.maps.Map(document.getElementById("%d"),mapProp);
+		  var bounds = new google.maps.LatLngBounds();
+        `, x)
+	for i := range lats {
+		fmt.Fprintf(w,
+
+			`
+			  loc = new google.maps.LatLng(%f, %f)
+			  bounds.extend(loc);
+			  var marker = new google.maps.Marker({
+	      		position: loc,
+	      		map: map,
+	      		title: 'Hello World!'
+	  		  });
+
+			`, lats[i], lngs[i])
+	}
+
+	fmt.Fprintf(w, `
+
+		    map.fitBounds(bounds);
+		    map.panToBounds(bounds); 
+		</script>
+		`)
+
+	fmt.Fprintf(w,
+		`
+		<div id="%d" style="width:600px;height:350px;"></div>
+		`, x)
+
+	return true, nil
 }
 
 func writeHtmlImg(w http.ResponseWriter, img image.Image) error {
@@ -215,6 +274,8 @@ var rootTemplate = template.Must(template.New("root").Parse(`
 <!DOCTYPE html>
 <html>
 <head>
+<script src="http://maps.googleapis.com/maps/api/js"> </script>
+
 <script>
 function loadXMLDoc() {
     var xmlhttp;
@@ -232,6 +293,12 @@ function loadXMLDoc() {
         node.innerHTML = xmlhttp.responseText;
         var outer = document.getElementById("myDiv")
         outer.appendChild(node);
+
+var scripts = node.getElementsByTagName("script");
+for( var i=0; i<scripts.length; i++ ) {
+    eval(scripts[i].innerText);
+}
+
         var node2 = document.createElement("div")
         node2.style.border = "1px solid black" 
         outer.appendChild(node2)
