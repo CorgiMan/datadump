@@ -31,30 +31,30 @@ Next we can sent stuff to the `datadump.C` channel to sent stuff to the browser.
 
 ```
 // Print a string
-datadump.C <- "Hello World!"
+datadump.Show("Hello World!")
 ```
  
 ``` 
 // Pretty print the contents of a file struct
 f, _ := os.Open("main.go")
-datadump.C <- f
+datadump.Show(f)
 ```
 
 ```
 // Show an Image (the mandelbrot image is defined in main/main.go)
-datadump.C <- Mandelbrot{Width: 300, Height: 300}
+datadump.Show(Mandelbrot{Width: 300, Height: 300})
 ```
 
 ```
 // Plot a sin function
 // xs and ys are of type []float64 and are defined in main/main.go
-datadump.C <- map[string]interface{}{"connected": 0, "x": xs, "y": ys}
+datadump.Show(map[string]interface{}{"connected": 0, "x": xs, "y": ys})
 ```
 
 ```
 // Plot datapoints from data from the web. We open a json file 
 // from the web and then transform it using jsonquery
-datadump.C <- jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").
+datadump.Show(jsonquery.FromURL("http://www.asterank.com/api/skymorph/search?target=J99TS7A").)
                         Select(`{"pixel_loc_x":"", "pixel_loc_y":""}`).
                         Flatten().
                         Rename("pixel_loc_x", "x", "pixel_loc_y", "y")
